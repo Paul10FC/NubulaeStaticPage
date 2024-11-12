@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -10,6 +10,62 @@ import community from '../images/community.webp';
 import customer from '../images/customer.webp';
 
 function ServiceSection() {
+    const [showForm, setShowForm] = useState(false);
+    const [SubmitedEvent, setSubmitedEvent] = useState(false);
+    const [formData, setFormData] = useState({
+        name: '',
+        email: '',
+        message: '',
+        location: ''
+    });
+
+    const handleRegisterClick = () => {
+        setShowForm(prevShowForm => !prevShowForm);
+        setSubmitedEvent(false);
+    };
+
+    const handleSubmit = async () => {
+        setSubmitedEvent(true);
+
+        try {
+            const response = await fetch('http://localhost:8080/register/new', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            });
+
+            if (response.ok) {
+                console.log('Formulario enviado');
+            } else {
+                console.log('Error al enviar el formulario');
+            }
+        } catch (error) {
+            console.log('Error de red:', error);
+        }
+    }
+
+    const handleChange = (e) => {
+        const {name, value} = e.target;
+        setFormData(prevData => ({
+            ...prevData,
+            [name]: value
+        }));
+    };
+
+    const handleSubmitedEvent = () => {
+        handleRegisterClick();
+        handleSubmit();
+        setFormData({
+            name: '',
+            email: '',
+            message: '',
+            location: ''
+        });
+    }
+
+
     const settings = {
         dots: true,
         infinite: true,
@@ -37,8 +93,74 @@ function ServiceSection() {
                     </div>
                     ))}
                 </Slider>
-                <button className="m-12 bg-[#0070f3] text-white text-lg px-6 py-1 rounded-xl">Registrarme</button>
+                <button 
+                    className="m-12 bg-[#0070f3] text-white text-lg px-6 py-1 rounded-xl"
+                    onClick={handleRegisterClick}
+                >
+                    Registrarme
+                </button>
             </div>
+
+            {showForm && (
+                <div className="bg-white w-1/2 m-auto p-4 rounded-xl transition-all duration-500">
+                    <h1 className='text-3xl mb-10'>Regístrate</h1>
+                    <form className="flex flex-col gap-4">
+                        <input 
+                            type="text" 
+                            name="name"
+                            placeholder="Nombre" 
+                            onChange={handleChange}
+                            value={formData.name}
+                            className="p-2 rounded-xl"
+                        />
+
+                        <input 
+                            type="text" 
+                            name='email'
+                            placeholder="Correo" 
+                            value={formData.email}
+                            onChange={handleChange}
+                            className="p-2 rounded-xl"
+                        />
+
+                        <input 
+                            name='message'
+                            type="text" 
+                            placeholder="Que esperas de la plataforma" 
+                            value={formData.message}
+                            onChange={handleChange}
+                            className="p-2 rounded-xl"
+                        />
+
+                        <input 
+                            name='location'
+                            type="location"
+                            placeholder="¿En donde te interesa que demos servicio?" 
+                            value={formData.location}
+                            onChange={handleChange}
+                            className="p-2 rounded-xl"
+                        />
+
+                        <button
+                            type='button' 
+                            className="bg-[#0070f3] text-white text-lg px-6 py-1 rounded-xl"
+                            onClick={handleSubmitedEvent}
+                        >
+                            Enviar
+                        </button>
+                    </form>
+                </div>
+            )}
+
+            {SubmitedEvent && (
+                <div className="bg-white w-1/2 m-auto p-4 rounded-xl transition-all duration-500">
+                    <h3 className='text-2xl mb-10'>
+                        Gracias por registrarte<br/><br />
+                        Tu correo se encuentra en nuestra base de datos y seras notificado cuando la plataforma este lista<br /><br />
+                        😎
+                    </h3>
+                </div>
+            )}
         </div>
     );
 }
