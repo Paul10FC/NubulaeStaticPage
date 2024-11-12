@@ -28,7 +28,7 @@ function ServiceSection() {
         setSubmitedEvent(true);
 
         try {
-            const response = await fetch('http://localhost:8080/register/new', {
+            const response = await fetch(`${process.env.API_URL}/register/new`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
